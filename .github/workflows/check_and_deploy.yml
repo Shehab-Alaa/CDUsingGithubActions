@@ -1,13 +1,11 @@
-## 1
+
 name: Test and deploy
 
-## Actions that will be executed when you push code currently none
 on:
   push:
 
-## 2
 jobs:
-  ## 3
+
   unit_tests:
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +13,7 @@ jobs:
 
       - name: Unit tests
         run: ./gradlew test
-  ## 4
+
   android_tests:
     runs-on: ubuntu-latest
     steps:
@@ -26,19 +24,23 @@ jobs:
         with:
           api-level: 29
           script: ./gradlew connectedAndroidTest
-  ## 5
+
   build:
     needs: [unit_tests, android_tests]
     runs-on: ubuntu-latest
     steps:
-      # 1
+
       - name: Checkout code
         uses: actions/checkout@v2
-      # 2
-      - name: Generate Release APK
-        run: ./gradlew assembleRelease
-      # 3
-      - uses: actions/upload-artifact@master
+
+      - name: Build Gradle
+        run: ./gradlew build
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v1
         with:
-          name: release.apk
-          path: ${{steps.sign_app.outputs.signedReleaseFile}}
+            name: app
+            path: app/build/outputs/apk/debug/app-debug.apk
